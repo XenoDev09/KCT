@@ -8,9 +8,9 @@ namespace KCT.Services
         public StudentViewModel GetInfo()
         {
             StudentViewModel student = new StudentViewModel();
-            student.Name = "Nischal";
             student.Id = 1;
-            student.Description = " Hey, My name is Nischal Moktan";
+            student.FullName = "Nischal Moktan";
+            student.Email = "nischal123321@gmail.com";
             return student;
         }
         
