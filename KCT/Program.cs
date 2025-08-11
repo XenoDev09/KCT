@@ -1,8 +1,13 @@
-using KCT.Interfaces;
+﻿using KCT.Interfaces;
 using KCT.Repositories;
 using KCT.Services;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using KCT.Data;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddDbContext<KCTContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("KCTContext") ?? throw new InvalidOperationException("Connection string 'KCTContext' not found.")));
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
