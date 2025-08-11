@@ -1,0 +1,24 @@
+﻿@model KCT.Models.Student
+
+@{
+    ViewData["Title"] = "Student Details";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<table class="table table-striped">
+    <tr>
+        <th>Id</th>
+        <td>@Model.Id</td>
+    </tr>
+    <tr>
+        <th>Full Name</th>
+        <td>@Model.FullName</td>
+    </tr>
+    <tr>
+        <th>Email</th>
+        <td>@Model.Email</td>
+    </tr>
+</table>
+
+<a asp-action="Index" class="btn btn-primary">Back To List</a>

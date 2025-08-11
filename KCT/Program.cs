@@ -1,15 +1,20 @@
+using KCT.Data;
 using KCT.Interfaces;
 using KCT.Repositories;
 using KCT.Services;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddDbContext<KCTContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("KCTContext") ?? throw new InvalidOperationException("Connection string 'KCTContext' not found.")));
+
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-builder.Services.AddScoped<IStudentService, StudentService>();
-
-builder.Services.AddScoped<IStudentRepository, StudentRepository>();
-builder.Services.AddScoped<DStudentService>();
+builder.Services.AddScoped<IStudentRepository, EFStudentRepository>();
+builder.Services.AddScoped<StudentService>();
 
 
 var app = builder.Build();
@@ -32,5 +37,7 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Student}/{action=Index}/{id?}");
+
+
 
 app.Run();

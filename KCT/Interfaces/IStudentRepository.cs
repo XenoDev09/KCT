@@ -4,10 +4,10 @@ namespace KCT.Interfaces
 {
     public interface IStudentRepository
     {
-        Task<IEnumerable<StudentViewModel>> GetAllAsync();
-        Task<StudentViewModel> GetByIdAsync(int id);
-        Task<int> AddAsync(StudentViewModel student);
-        Task<int> UpdateAsync(StudentViewModel student);
+        Task<IEnumerable<Student>> GetAllAsync();
+        Task<Student> GetByIdAsync(int id);
+        Task<int> AddAsync(Student student);
+        Task<int> UpdateAsync(Student student);
         Task<int> DeleteAsync(int id);
     }
 }

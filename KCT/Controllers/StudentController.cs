@@ -1,91 +1,98 @@
 ﻿using KCT.Interfaces;
-using Microsoft.AspNetCore.Http;
+using KCT.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace KCT.Controllers
 {
     public class StudentController : Controller
     {
-        private readonly IStudentService _studentService;
+        private readonly IStudentRepository _studentRepository;
 
-        public StudentController(IStudentService studentService)
+        public StudentController(IStudentRepository studentRepository)
         {
-            _studentService = studentService;
-        }
-        // GET: StudentController
-        public ActionResult Index()
-        {
-            var data = _studentService.GetInfo();
-            return View(data);
+            _studentRepository = studentRepository;
         }
 
-        // GET: StudentController/Details/5
-        public ActionResult Details(int id)
+        // GET: Student
+        public async Task<IActionResult> Index()
+        {
+            var students = await _studentRepository.GetAllAsync();
+            return View(students);
+        }
+
+        // GET: Student/Details/5
+        public async Task<IActionResult> Details(int id)
+        {
+            var student = await _studentRepository.GetByIdAsync(id);
+            if (student == null)
+                return NotFound();
+
+            return View(student);
+        }
+
+        // GET: Student/Create
+        public IActionResult Create()
         {
             return View();
         }
 
-        // GET: StudentController/Create
-        public ActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: StudentController/Create
+        // POST: Student/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public async Task<IActionResult> Create(Student student)
         {
-            try
+            if (ModelState.IsValid)
             {
+                await _studentRepository.AddAsync(student);
                 return RedirectToAction(nameof(Index));
             }
-            catch
-            {
-                return View();
-            }
+            return View(student);
         }
 
-        // GET: StudentController/Edit/5
-        public ActionResult Edit(int id)
+        // GET: Student/Edit/5
+        public async Task<IActionResult> Edit(int id)
         {
-            return View();
+            var student = await _studentRepository.GetByIdAsync(id);
+            if (student == null)
+                return NotFound();
+
+            return View(student);
         }
 
-        // POST: StudentController/Edit/5
+        // POST: Student/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public async Task<IActionResult> Edit(int id, Student student)
         {
-            try
+            if (id != student.Id)
+                return BadRequest();
+
+            if (ModelState.IsValid)
             {
+                await _studentRepository.UpdateAsync(student);
                 return RedirectToAction(nameof(Index));
             }
-            catch
-            {
-                return View();
-            }
+            return View(student);
         }
 
-        // GET: StudentController/Delete/5
-        public ActionResult Delete(int id)
+        // GET: Student/Delete/5
+        public async Task<IActionResult> Delete(int id)
         {
-            return View();
+            var student = await _studentRepository.GetByIdAsync(id);
+            if (student == null)
+                return NotFound();
+
+            return View(student);
         }
 
-        // POST: StudentController/Delete/5
-        [HttpPost]
+        // POST: Student/Delete/5
+        [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
+            await _studentRepository.DeleteAsync(id);
+            return RedirectToAction(nameof(Index));
         }
     }
 }
