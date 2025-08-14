@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 using KCT.Data;
 using KCT.Interfaces;
 using KCT.Repositories;
@@ -5,8 +6,18 @@ using KCT.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+=======
+﻿using KCT.Interfaces;
+using KCT.Repositories;
+using KCT.Services;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using KCT.Data;
+>>>>>>> e921331a01c8b0482a7dbd1bc7ed060f1262c5d3
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddDbContext<KCTContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("KCTContext") ?? throw new InvalidOperationException("Connection string 'KCTContext' not found.")));
 
 builder.Services.AddDbContext<KCTContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("KCTContext") ?? throw new InvalidOperationException("Connection string 'KCTContext' not found.")));

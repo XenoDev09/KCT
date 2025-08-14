@@ -21,6 +21,7 @@ namespace KCT.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+<<<<<<< HEAD
             modelBuilder.Entity("KCT.Models.Registration", b =>
                 {
                     b.Property<int>("Id")
@@ -55,6 +56,9 @@ namespace KCT.Migrations
                 });
 
             modelBuilder.Entity("KCT.Models.Student", b =>
+=======
+            modelBuilder.Entity("KCT.Models.StudentViewModel", b =>
+>>>>>>> e921331a01c8b0482a7dbd1bc7ed060f1262c5d3
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -63,14 +67,26 @@ namespace KCT.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Email")
+<<<<<<< HEAD
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FullName")
+=======
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+>>>>>>> e921331a01c8b0482a7dbd1bc7ed060f1262c5d3
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
+<<<<<<< HEAD
                     b.ToTable("Students");
+=======
+                    b.ToTable("StudentViewModel");
+>>>>>>> e921331a01c8b0482a7dbd1bc7ed060f1262c5d3
                 });
 #pragma warning restore 612, 618
         }
