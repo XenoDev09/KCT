@@ -35,7 +35,7 @@ namespace KCT.Controllers
             return Ok(registrations);
         }
 
-        [HttpGet("{id:int}")]
+        [HttpGet]
         public async Task<IActionResult> Get(int id)
         {
             var registration = await _registrationRepository.GetByIdAsync(id);
@@ -53,7 +53,7 @@ namespace KCT.Controllers
         }
 
         // PUT: /Registration/Edit/5
-        [HttpPut("{id:int}")]
+        [HttpPost]
         public async Task<IActionResult> Edit(int id, [FromBody] Registration registration)
         {
             var existing = await _registrationRepository.GetByIdAsync(id);
@@ -72,7 +72,7 @@ namespace KCT.Controllers
 
 
         // DELETE: /Registration/Delete/5
-        [HttpDelete("{id:int}")]
+        [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
             var existing = await _registrationRepository.GetByIdAsync(id);

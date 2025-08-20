@@ -1,10 +1,10 @@
 ﻿@model KCT.Models.Registration
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Create / Edit Registration";
 }
 
-<h1>Create</h1>
+<h1>Create / Edit Registration</h1>
 
 <h4>Registration</h4>
 <hr />
@@ -12,7 +12,7 @@
 <form id="regForm">
     <div>
         <label> Name </label>
-        <input type="text" class="form-control" id="name" />
+        <input type="text" class="form-control" id="name" required />
     </div>
     <div class="mb-3">
         <label> Description </label>
@@ -30,34 +30,33 @@
         <label> Phone </label>
         <input type="text" class="form-control" id="phone" />
     </div>
-    <button type="submit" class="btn btn-primary">Register</button>
+    <button type="submit" class="btn btn-primary">Submit</button>
 </form>
 
-<div class="table-container">
-    <table id="itemsTable">
-
+<div class="table-container mt-4">
+    <table id="itemsTable" class="table table-bordered">
         <thead>
-            <tr style="border:2px solid black">
+            <tr>
                 <th>ID</th>
                 <th>Name</th>
                 <th>Description</th>
                 <th>Address</th>
                 <th>City</th>
-
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody></tbody>
-
-
     </table>
 </div>
 
-
-
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script>
-    $("#regForm").on("submit", function (e) {
+    let editId = null; // null = Create mode, number = Edit mode
+
+    // -------------------- SINGLE SUBMIT HANDLER --------------------
+    $("#regForm").on("submit", function(e) {
         e.preventDefault();
+
         const data = {
             name: $("#name").val(),
             description: $("#description").val(),
@@ -65,107 +64,94 @@
             city: $("#city").val(),
             phone: $("#phone").val()
         };
-        console.log(data,"Done");
 
-        $.ajax({
-            url: "/Registration/Create",
-            type: "POST",
-            contentType: "application/json",
-            data: JSON.stringify(data)
-
-        })
-        .done(function (res) {
-            console.log(res);
-            alert(res.message || "Registered successfully!");
-            $("#regForm")[0].reset();
-         })
-
-        .fail(function (xhr) {
-            alert("Error: " + xhr.responseText);
-        });
-
+        if (editId === null) {
+            // CREATE
+            $.ajax({
+                url: "/Registration/Create",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(data)
+            })
+            .done(function(res) {
+                alert(res.message || "Registered successfully!");
+                $("#regForm")[0].reset();
+                loadItems();
+            })
+            .fail(function(xhr) {
+                alert("Error: " + xhr.responseText);
+            });
+        } else {
+            // EDIT
+            $.ajax({
+                url: `/Registration/Edit/${editId}`,
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(data),
+                success: function(res) {
+                    alert(res.message);
+                    $("#regForm")[0].reset();
+                    editId = null; // switch back to Create mode
+                    loadItems();
+                },
+                error: function(err) {
+                    alert("Error updating registration: " + err.responseText);
+                }
+            });
+        }
     });
 
-
-    debugger
+    // -------------------- LOAD TABLE --------------------
     function loadItems() {
-         $.get("/Registration/GetAll", function(data) {
-             const rows = data.map(item => `
-                 <tr>
-                     <td>${item.id}</td>
-                     <td>${item.name}</td>
-                     <td>${item.description}</td>
-                     <td>${item.address}</td>
-                     <td>${item.city}</td>
-                     <td>
-                         <button class="action-btn edit-btn" onclick="editItem(${item.id})">Edit</button>
-                         <button class="action-btn delete-btn" onclick="deleteItem(${item.id})">Delete</button>
-                     </td>
-                 </tr>
-             `);
-             $("#itemsTable tbody").html(rows.join(""));
-         });
-     }
-     loadItems();
+        $.get("/Registration/GetAll", function(data) {
+            const rows = data.map(item => `
+                <tr>
+                    <td>${item.id}</td>
+                    <td>${item.name}</td>
+                    <td>${item.description}</td>
+                    <td>${item.address}</td>
+                    <td>${item.city}</td>
+                    <td>
+                        <button class="btn btn-sm btn-warning" onclick="editItem(${item.id})">Edit</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteItem(${item.id})">Delete</button>
+                    </td>
+                </tr>
+            `);
+            $("#itemsTable tbody").html(rows.join(""));
+        });
+    }
 
-      function editItem(id) {
-        // Fetch the existing item data
-        $.get(`/Registration/Get/${id}`, function(item) {
-            // Fill the form with existing values
+    loadItems();
+
+    // -------------------- EDIT --------------------
+    function editItem(id) {
+        $.get(`/Registration/Get?id=${id}`, function(item) {
             $("#name").val(item.name);
             $("#description").val(item.description);
             $("#address").val(item.address);
             $("#city").val(item.city);
             $("#phone").val(item.phone);
 
-            // Change form submit behavior to update
-            $("#regForm").off("submit").on("submit", function(e) {
-                e.preventDefault();
-
-                const updatedData = {
-                    name: $("#name").val(),
-                    description: $("#description").val(),
-                    address: $("#address").val(),
-                    city: $("#city").val(),
-                    phone: $("#phone").val()
-                };
-
-                $.ajax({
-                    url: `/Registration/Edit/${id}`,
-                    type: "PUT",
-                    contentType: "application/json",
-                    data: JSON.stringify(updatedData),
-                    success: function(res) {
-                        alert(res.message);
-                        $("#regForm")[0].reset();
-                        loadItems(); // refresh table
-                        // Restore original submit to create new
-                        setupCreateForm();
-                    },
-                    error: function(err) {
-                        alert("Error updating registration: " + err.responseText);
-                    }
-                });
-            });
+            editId = id; // switch form to Edit mode
+        }).fail(function() {
+            alert("Failed to fetch registration data.");
         });
     }
 
-
-        function deleteItem(id) {
+    // -------------------- DELETE --------------------
+    function deleteItem(id) {
         if (!confirm("Are you sure you want to delete this registration?")) return;
 
         $.ajax({
             url: `/Registration/Delete/${id}`,
-            type: "DELETE",
+            type: "POST",
             success: function(res) {
                 alert(res.message);
-                loadItems(); // refresh table
+                loadItems();
             },
             error: function(err) {
                 alert("Error deleting registration: " + err.responseText);
             }
         });
     }
-
-
 </script>
