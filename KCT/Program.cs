@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 using KCT.Data;
 using KCT.Interfaces;
 using KCT.Repositories;
@@ -6,14 +6,6 @@ using KCT.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-=======
-﻿using KCT.Interfaces;
-using KCT.Repositories;
-using KCT.Services;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using KCT.Data;
->>>>>>> e921331a01c8b0482a7dbd1bc7ed060f1262c5d3
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<KCTContext>(options =>
@@ -26,6 +18,8 @@ builder.Services.AddDbContext<KCTContext>(options =>
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<IStudentRepository, EFStudentRepository>();
 builder.Services.AddScoped<StudentService>();
+builder.Services.AddScoped<IRegistrationRepository, EFRegistrationRepository>();
+builder.Services.AddScoped<RegistrationService>();
 
 
 var app = builder.Build();

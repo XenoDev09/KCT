@@ -1,157 +1,89 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using KCT.Data;
+using KCT.Interfaces;
+using KCT.Models;
+using KCT.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using KCT.Data;
-using KCT.Models;
+using NuGet.Protocol.Core.Types;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace KCT.Controllers
 {
     public class RegistrationController : Controller
     {
-        private readonly KCTContext _context;
+        private readonly IRegistrationRepository _registrationRepository;
 
-        public RegistrationController(KCTContext context)
+        public RegistrationController(IRegistrationRepository registrationRepository)
         {
-            _context = context;
+            _registrationRepository = registrationRepository;
         }
 
-        // GET: Registration
-        public async Task<IActionResult> Index()
-        {
-            return View(await _context.Registrations.ToListAsync());
-        }
-
-        // GET: Registration/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var registration = await _context.Registrations
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (registration == null)
-            {
-                return NotFound();
-            }
-
-            return View(registration);
-        }
-
-        // GET: Registration/Create
-        public IActionResult Create()
+        // GET: /Registration
+        public IActionResult Index()
         {
             return View();
         }
 
-        // POST: Registration/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            var registrations = await _registrationRepository.GetAllAsync();
+            return Ok(registrations);
+        }
+
+        [HttpGet("{id:int}")]
+        public async Task<IActionResult> Get(int id)
+        {
+            var registration = await _registrationRepository.GetByIdAsync(id);
+            if (registration == null) return NotFound();
+            return Ok(registration);
+        }
+
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Descriptionl,Address,City,Phone")] Registration registration)
+        public async Task<IActionResult> Create([FromBody] Registration registration)
         {
-            if (ModelState.IsValid)
-            {
-                _context.Add(registration);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(registration);
+            await _registrationRepository.AddAsync(registration);
+
+            // Return a simple JSON message for AJAX front-end
+            return Ok(new { message = "Registration Successful!", registration });
         }
 
-        // GET: Registration/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        // PUT: /Registration/Edit/5
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> Edit(int id, [FromBody] Registration registration)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            var existing = await _registrationRepository.GetByIdAsync(id);
+            if (existing == null) return NotFound();
 
-            var registration = await _context.Registrations.FindAsync(id);
-            if (registration == null)
-            {
-                return NotFound();
-            }
-            return View(registration);
+            existing.Name = registration.Name;
+            existing.Description = registration.Description;
+            existing.Address = registration.Address;
+            existing.City = registration.City;
+            existing.Phone = registration.Phone;
+
+            await _registrationRepository.UpdateAsync(existing); // UpdateAsync expects object
+
+            return Ok(new { message = "Registration Updated!", registration = existing });
         }
 
-        // POST: Registration/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Descriptionl,Address,City,Phone")] Registration registration)
-        {
-            if (id != registration.Id)
-            {
-                return NotFound();
-            }
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(registration);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!RegistrationExists(registration.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            return View(registration);
+        // DELETE: /Registration/Delete/5
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var existing = await _registrationRepository.GetByIdAsync(id);
+            if (existing == null) return NotFound();
+
+            await _registrationRepository.DeleteAsync(id); // ✅ pass id, not object
+
+            return Ok(new { message = "Registration Deleted!" });
         }
 
-        // GET: Registration/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var registration = await _context.Registrations
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (registration == null)
-            {
-                return NotFound();
-            }
-
-            return View(registration);
-        }
-
-        // POST: Registration/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var registration = await _context.Registrations.FindAsync(id);
-            if (registration != null)
-            {
-                _context.Registrations.Remove(registration);
-            }
-
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
-
-        private bool RegistrationExists(int id)
-        {
-            return _context.Registrations.Any(e => e.Id == id);
-        }
     }
+
+
 }
