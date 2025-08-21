@@ -13,6 +13,9 @@ using System.Threading.Tasks;
 
 namespace KCT.Controllers
 {
+    [ApiController]
+    [Route("api/[controller]")]
+
     public class RegistrationController : Controller
     {
         private readonly IRegistrationRepository _registrationRepository;
@@ -22,12 +25,6 @@ namespace KCT.Controllers
             _registrationRepository = registrationRepository;
         }
 
-        // GET: /Registration
-        public IActionResult Index()
-        {
-            return View();
-        }
-
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -35,7 +32,7 @@ namespace KCT.Controllers
             return Ok(registrations);
         }
 
-        [HttpGet]
+        [HttpGet("{id:int}")]
         public async Task<IActionResult> Get(int id)
         {
             var registration = await _registrationRepository.GetByIdAsync(id);
@@ -53,10 +50,10 @@ namespace KCT.Controllers
         }
 
         // PUT: /Registration/Edit/5
-        [HttpPost]
-        public async Task<IActionResult> Edit(int id, [FromBody] Registration registration)
+        [HttpPut]
+        public async Task<IActionResult> Edit([FromBody] Registration registration)
         {
-            var existing = await _registrationRepository.GetByIdAsync(id);
+            var existing = await _registrationRepository.GetByIdAsync(registration.Id);
             if (existing == null) return NotFound();
 
             existing.Name = registration.Name;
@@ -72,7 +69,7 @@ namespace KCT.Controllers
 
 
         // DELETE: /Registration/Delete/5
-        [HttpPost]
+        [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
             var existing = await _registrationRepository.GetByIdAsync(id);
