@@ -61,6 +61,11 @@ namespace KCT.Controllers
             existing.Address = registration.Address;
             existing.City = registration.City;
             existing.Phone = registration.Phone;
+            existing.Email = registration.Email;
+            existing.State = registration.State;
+            existing.ZipCode = registration.ZipCode;
+            existing.Password = registration.Password;
+            existing.Role = registration.Role;
 
             await _registrationRepository.UpdateAsync(existing); // UpdateAsync expects object
 
