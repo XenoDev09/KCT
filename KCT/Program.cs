@@ -20,6 +20,7 @@ builder.Services.AddScoped<IStudentRepository, EFStudentRepository>();
 builder.Services.AddScoped<StudentService>();
 builder.Services.AddScoped<IRegistrationRepository, EFRegistrationRepository>();
 builder.Services.AddScoped<RegistrationService>();
+builder.Services.AddScoped<IRegistrationService, RegistrationService>();
 
 
 var app = builder.Build();

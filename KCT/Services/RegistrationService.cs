@@ -3,7 +3,7 @@ using KCT.Models;
 
 namespace KCT.Services
 {
-    public class RegistrationService
+    public class RegistrationService : IRegistrationService
     {
         private readonly IRegistrationRepository _registrationRepository;
 
